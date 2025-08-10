@@ -34,10 +34,13 @@ app.post("/api", async ({ body }: { body: any }) => {
     });
   }
   if (!body.story_content) {
-    return new Response(JSON.stringify({ message: "Story content is required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ message: "Story content is required" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
   try {
@@ -57,7 +60,6 @@ app.post("/api", async ({ body }: { body: any }) => {
   }
 });
 
-
 app.delete("/api/:id", async ({ params }: { params: { id: string } }) => {
   try {
     const deleted = await StoryData.findByIdAndDelete(params.id);
@@ -76,32 +78,83 @@ app.get("/api/:id", async ({ params }) => {
   try {
     const story = await StoryData.findById(params.id);
     if (!story) {
+      return new Response(JSON.stringify({ message: "Story not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify(story), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ message: "Invalid story ID" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+});
+
+// updata story
+
+app.put(
+  "/api/:id",
+  async ({ params, body }: { params: { id: string }; body: any }) => {
+    if (!body.title) {
+      return new Response(JSON.stringify({ message: "Title is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (!body.writter) {
+      return new Response(JSON.stringify({ message: "Writer is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (!body.story_content) {
       return new Response(
-        JSON.stringify({ message: "Story not found" }),
+        JSON.stringify({ message: "Story content is required" }),
         {
-          status: 404,
+          status: 400,
           headers: { "Content-Type": "application/json" },
         }
       );
     }
-    return new Response(
-      JSON.stringify(story),
-      {
+
+    try {
+      const updatedStory = await StoryData.findByIdAndUpdate(
+        params.id,
+        {
+          title: body.title,
+          writter: body.writter,
+          story_content: body.story_content,
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!updatedStory) {
+        return new Response(JSON.stringify({ message: "Story not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify(updatedStory), {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }
-    );
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ message: "Invalid story ID" }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+      });
+    } catch (error) {
+      return new Response(
+        JSON.stringify({ message: "Failed to update story" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   }
-});
-
+);
 
 app.listen(PORT);
 console.log(`🦊 Elysia is running at http://localhost:${PORT}`);
