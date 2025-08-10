@@ -3,14 +3,15 @@ import cors from "@elysiajs/cors";
 import dbconnect from "./config/db";
 import StoryData from "./model/StorySchema";
 
+// Connect to DB (make sure MONGODB_URI is set in Vercel env)
 dbconnect();
-
-const PORT = 3000;
 
 const app = new Elysia();
 
-app.use(cors()); // Enable CORS for frontend requests
+// Enable CORS
+app.use(cors());
 
+// Routes
 app.get("/", () => {
   return { message: "API is running" };
 });
@@ -26,7 +27,6 @@ app.post("/api", async ({ body }: { body: any }) => {
   if (!body.story_content) return { message: "Story content is required" };
 
   const { title, writter, story_content } = body;
-
   const story_data = new StoryData({ title, writter, story_content });
   await story_data.save();
 
@@ -36,11 +36,9 @@ app.post("/api", async ({ body }: { body: any }) => {
 app.delete("/api/:id", async ({ params }: { params: { id: string } }) => {
   try {
     const deleted = await StoryData.findByIdAndDelete(params.id);
-
     if (!deleted) {
       return { message: "Story not found" };
     }
-
     return { message: "Story deleted successfully" };
   } catch (error) {
     return { message: "Failed to delete story", error };
@@ -68,8 +66,5 @@ app.get("/api/:id", async ({ params }) => {
   }
 });
 
-app.listen(PORT);
-console.log(`🦊 Elysia is running at http://localhost:${PORT}`);
-
-// Export a handler for Vercel
+// ✅ Do NOT use app.listen in Vercel
 export default app.handle;
