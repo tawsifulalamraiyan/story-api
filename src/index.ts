@@ -51,32 +51,25 @@ app.get("/api/:id", async ({ params }) => {
   try {
     const story = await StoryData.findById(params.id);
     if (!story) {
-      return new Response(
-        JSON.stringify({ message: "Story not found" }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ message: "Story not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
-    return new Response(
-      JSON.stringify(story),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify(story), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ message: "Invalid story ID" }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ message: "Invalid story ID" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 });
 
-
 app.listen(PORT);
 console.log(`🦊 Elysia is running at http://localhost:${PORT}`);
+
+// Export a handler for Vercel
+export default app.handle;
