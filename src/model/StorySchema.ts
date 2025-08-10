@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 
-const StorySchema = new mongoose.Schema({
-  id: { type: Number },
-  title: { type: String, require },
-  writter: { type: String, require },
-  Story_content: { type: String, require },
-});
+const StorySchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    writter: { type: String, required: true },
+    story_content: { type: String, required: true }, // lowercase 's'!
+  },
+  { timestamps: true }
+);
 
 const StoryData = mongoose.model("StoryData", StorySchema);
 
